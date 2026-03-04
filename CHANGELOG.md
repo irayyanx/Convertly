@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/irayyanx/Convertly/compare/v2.0.1...v2.0.2) (2026-03-04)
+
+
+### Bug Fixes
+
+* firefox background script support ([b8582a3](https://github.com/irayyanx/Convertly/commit/b8582a31fd871dd291a513093aa780df834adedd))
+
 ## [2.0.1](https://github.com/irayyanx/Convertly/compare/v2.0.0...v2.0.1) (2026-03-04)
 
 
