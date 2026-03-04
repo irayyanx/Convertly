@@ -63,24 +63,69 @@ function formatNum(num) {
 
 function detectCurrency(text) {
     const upper = text.toUpperCase();
-    for (const [symbol, code] of Object.entries(SYMBOL_MAP)) {
-        if (upper.includes(symbol)) return code;
+
+    // 1) Symbol currencies (safe)
+    const symbolMatches = [
+        ['$', 'USD'], ['€', 'EUR'], ['£', 'GBP'], ['¥', 'JPY'],
+        ['₺', 'TRY'], ['₽', 'RUB'], ['₹', 'INR'], ['₩', 'KRW'], ['₦', 'NGN']
+    ];
+    for (const [sym, code] of symbolMatches) {
+        if (upper.includes(sym)) return code;
     }
+
+    // 2) Arabic abbreviations
+    const arabicTokens = [
+        ['ج.م', 'EGP'], ['ر.س', 'SAR'], ['د.إ', 'AED'], ['د.ك', 'KWD'],
+        ['ر.ق', 'QAR'], ['د.أ', 'JOD']
+    ];
+    for (const [tok, code] of arabicTokens) {
+        if (upper.includes(tok.toUpperCase())) return code;
+    }
+
+    // Helper: token as standalone word (not inside other words)
+    const hasWordToken = (token) => {
+        const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(^|[^A-Z0-9])${escaped}([^A-Z0-9]|$)`, 'i');
+        return re.test(upper);
+    };
+
+    // 3) ISO codes
+    const isoCodes = [
+        'USD','EUR','GBP','EGP','SAR','AED','KWD','QAR','JOD','ILS','JPY',
+        'CAD','AUD','CHF','CNY','RUB','INR','KRW','SGD','MXN','BRL','ZAR',
+        'IDR','MYR','PHP','THB','VND','PKR','BDT','NGN','HKD','NZD','SEK','NOK',
+        'BTC','ETH','ADA','SOL','XRP','BHD','OMR','MAD','TND','DZD','IQD','LYD','YER','TRY'
+    ];
+    for (const code of isoCodes) {
+        if (hasWordToken(code)) return code;
+    }
+
+    // 4) Short Latin abbreviations (standalone only)
+    const shortTokens = [
+        ['LE', 'EGP'], ['TL', 'TRY'], ['SR', 'SAR'], ['JD', 'JOD'], ['RS', 'INR'], ['DHS', 'AED']
+    ];
+    for (const [tok, code] of shortTokens) {
+        if (hasWordToken(tok)) return code;
+    }
+
     return null;
 }
 
 function parseAmount(text) {
-    const hasCurrency = Object.keys(SYMBOL_MAP).some(symbol => text.toUpperCase().includes(symbol));
-    if (!hasCurrency) return null;
+    const detected = detectCurrency(text);
+    if (!detected) return null;
 
     let clean = text.replace(/,/g, '').trim().toUpperCase();
     let multiplier = 1;
+
     if (clean.endsWith('K')) multiplier = 1000;
     else if (clean.endsWith('M')) multiplier = 1000000;
     else if (clean.endsWith('B')) multiplier = 1000000000;
-    clean = clean.replace(/[KMB]/g, ''); 
-    clean = clean.replace(/[^0-9.]/g, ''); 
-    let val = parseFloat(clean);
+
+    clean = clean.replace(/[KMB]/g, '');
+    clean = clean.replace(/[^0-9.]/g, '');
+
+    const val = parseFloat(clean);
     if (isNaN(val)) return null;
     return val * multiplier;
 }
@@ -215,4 +260,5 @@ function removeTooltip() {
         currentTooltip=null;
     } 
 }
+
 function updateError() { if(currentTooltip) currentTooltip.innerHTML='<span style="color:red;font-size:12px;padding:5px">Error</span>'; }
