@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/irayyanx/Convertly/compare/v2.0.2...v2.0.3) (2026-03-04)
+
+
+### Bug Fixes
+
+* package zips correctly ([a539422](https://github.com/irayyanx/Convertly/commit/a53942200fb0ab00c95dbac3057aaba4952eb909))
+
 ## [2.0.2](https://github.com/irayyanx/Convertly/compare/v2.0.1...v2.0.2) (2026-03-04)
 
 
