@@ -1,5 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
 
+/**
+ * Convertly — On-Page Tooltip Styles
+ *
+ * Injected into every host page via the manifest's content_scripts declaration.
+ * All class names are namespaced with "cpt-" to avoid collisions with host CSS.
+ *
+ * Key defensive techniques:
+ *  - !important overrides on SVG fill/stroke prevent host sites' global SVG
+ *    rules from overriding our icon rendering.
+ *  - z-index is set to the 32-bit signed integer max (2,147,483,647) to ensure
+ *    the tooltip renders above host navbars, modals, and sticky headers.
+ *  - backdrop-filter provides the frosted-glass effect without masking readability.
+ */
+
+/* ---------------------------------------------------------------------------
+   Theme Variables — Light is the :root default; dark is applied via
+   data-theme="dark" on the tooltip element itself.
+   --------------------------------------------------------------------------- */
+
 :root {
     --cpt-bg: rgba(255, 255, 255, 0.85);
     --cpt-txt: #1a1a1a;
@@ -8,6 +27,7 @@
     --cpt-accent: #3b82f6;
     --cpt-divider: rgba(0, 0, 0, 0.08);
 }
+
 [data-theme="dark"] {
     --cpt-bg: rgba(30, 30, 30, 0.85);
     --cpt-txt: #ffffff;
@@ -16,14 +36,24 @@
     --cpt-divider: rgba(255, 255, 255, 0.1);
 }
 
+/* ---------------------------------------------------------------------------
+   Tooltip Container
+   --------------------------------------------------------------------------- */
+
 .currency-pro-tooltip {
-    position: absolute; z-index: 2147483647;
-    background: var(--cpt-bg); color: var(--cpt-txt);
-    border-radius: 16px; padding: 10px;
+    position: absolute;
+    z-index: 2147483647;
+    background: var(--cpt-bg);
+    color: var(--cpt-txt);
+    border-radius: 16px;
+    padding: 10px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2), 0 0 0 1px var(--cpt-border);
-    font-family: 'Tajawal', sans-serif !important; min-width: 180px; 
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    opacity: 0; transform: translateY(10px) scale(0.95);
+    font-family: 'Tajawal', sans-serif !important;
+    min-width: 180px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
     animation: cpt-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -31,33 +61,132 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.cpt-loader {
-    width: 24px; height: 24px; border: 3px solid var(--cpt-border);
-    border-top-color: var(--cpt-accent); border-radius: 50%;
-    animation: cpt-spin 0.8s linear infinite; margin: 12px auto; display: block;
-}
-@keyframes cpt-spin { to { transform: rotate(360deg); } }
+/* ---------------------------------------------------------------------------
+   Loading Spinner — Shown while the background service worker fetches rates.
+   --------------------------------------------------------------------------- */
 
-.cpt-list { display: flex; flex-direction: column; gap: 4px; }
+.cpt-loader {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--cpt-border);
+    border-top-color: var(--cpt-accent);
+    border-radius: 50%;
+    animation: cpt-spin 0.8s linear infinite;
+    margin: 12px auto;
+    display: block;
+}
+
+@keyframes cpt-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------------------------------------------------------------------------
+   Currency Result List & Row Layout
+   --------------------------------------------------------------------------- */
+
+.cpt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
 .cpt-row {
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 12px 14px;
     border-radius: 12px;
     transition: background 0.2s ease;
-    gap: 30px;
+    gap: 12px;
     border-bottom: 1px solid var(--cpt-divider);
 }
 .cpt-row:last-child { border-bottom: none; }
 .cpt-row:hover { background: var(--cpt-hover); }
 
+/* Amount and currency label typography */
 .cpt-info { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .cpt-amount { font-weight: 700; font-size: 18px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cpt-curr { font-size: 13px; opacity: 0.7; font-weight: 500; }
 
-.cpt-copy {
-    background: var(--cpt-hover); border: none; cursor: pointer;
-    color: var(--cpt-txt); padding: 8px; border-radius: 10px;
-    display: flex; transition: 0.2s; opacity: 0.8;
+/* ---------------------------------------------------------------------------
+   Action Buttons — Copy and Save-to-History sit side by side.
+   --------------------------------------------------------------------------- */
+
+.cpt-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
 }
-.cpt-copy:hover { opacity: 1; background: var(--cpt-border); color: var(--cpt-accent); }
+
+.cpt-copy {
+    background: var(--cpt-hover);
+    border: none;
+    cursor: pointer;
+    color: var(--cpt-txt);
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    transition: 0.2s;
+    opacity: 0.8;
+}
+.cpt-copy:hover {
+    opacity: 1;
+    background: var(--cpt-border);
+    color: var(--cpt-accent);
+}
+
+/* Bookmark-style save button */
+.cpt-save {
+    background: var(--cpt-hover);
+    border: none;
+    cursor: pointer;
+    color: var(--cpt-txt);
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    transition: all 0.2s ease;
+    opacity: 0.8;
+}
+.cpt-save:hover {
+    opacity: 1;
+    background: var(--cpt-border);
+    color: var(--cpt-accent);
+}
+
+/* Brief green pulse confirming the save action */
+.cpt-save.cpt-save-success {
+    color: #4caf50;
+    opacity: 1;
+    animation: cpt-save-pulse 0.4s ease-in-out;
+}
+
+@keyframes cpt-save-pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ---------------------------------------------------------------------------
+   SVG Override Shield
+   Many host sites apply aggressive global rules like `svg { fill: black; }`
+   which would break our transparent-stroke icon style. These !important
+   overrides force our icons to inherit color from the tooltip's own theme.
+   --------------------------------------------------------------------------- */
+
+.currency-pro-tooltip svg,
+.currency-pro-tooltip svg rect,
+.currency-pro-tooltip svg path,
+.currency-pro-tooltip svg polyline {
+    fill: none !important;
+    background: transparent !important;
+    stroke: currentColor !important;
+}
+
+/* Lock icon dimensions to prevent host flexbox/grid rules from distorting them */
+.cpt-copy svg,
+.cpt-save svg {
+    display: block !important;
+    width: 14px !important;
+    height: 14px !important;
+}
