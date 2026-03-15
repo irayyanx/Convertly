@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.3](https://github.com/irayyanx/Convertly/compare/v2.1.2...v2.1.3) (2026-03-15)
+
+
+### Bug Fixes
+
+* install imagemagick to resolve workflow build error ([3da6723](https://github.com/irayyanx/Convertly/commit/3da672326341e9c9dd3cdfaeb0e40a0eb86164dd))
+
 ## [2.1.2](https://github.com/irayyanx/Convertly/compare/v2.1.1...v2.1.2) (2026-03-15)
 
 
