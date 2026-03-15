@@ -1,6 +1,0 @@
-feat(ui): implement AMOLED Black theme and resolve interactivity glitches
-
-- Visual: Transitioned UI to pure AMOLED black (#000000) with neon blue accents and high-contrast typography.
-- Interaction: Added hardware-accelerated micro-interactions (hover-lift, active-scale) with cubic-bezier timing.
-- Fixes: Removed transform from <select> and .option-item:hover to fix native OS rendering glitches.
-- RTL/LTR: Verified bidirectional padding and caret positioning for the new custom SVG chevron.
