@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/irayyanx/Convertly/compare/v2.1.0...v2.1.1) (2026-03-15)
+
+
+### Bug Fixes
+
+* replace unsafe innerHTML to resolve Firefox AMO security warnings ([cba7556](https://github.com/irayyanx/Convertly/commit/cba75565fa538464a5aabdff6060de53811c8a4a))
+
 ## [2.1.0](https://github.com/irayyanx/Convertly/compare/v2.0.3...v2.1.0) (2026-03-15)
 
 
