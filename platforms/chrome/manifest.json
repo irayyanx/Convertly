@@ -1,15 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Convertly - Smart Currency Converter",
-  "version": "2.0.4",
+  "version": "0.0.0",
   "description": "Professional currency converter. Arabic support, Math solver, and Smart UI.",
-  "permissions": [
-    "storage",
-    "clipboardWrite"
-  ],
-  "host_permissions": [
-    "https://query1.finance.yahoo.com/*"
-  ],
+  "permissions": ["storage", "clipboardWrite", "tabs"],
+  "host_permissions": ["https://query1.finance.yahoo.com/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -28,24 +23,15 @@
   },
   "commands": {
     "_execute_action": {
-      "suggested_key": {
-        "default": "Alt+Q",
-        "mac": "Alt+Q"
-      },
+      "suggested_key": { "default": "Alt+Q", "mac": "Alt+Q" },
       "description": "Open Convertly"
     }
   },
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "css": [
-        "styles.css"
-      ]
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
     }
   ]
 }

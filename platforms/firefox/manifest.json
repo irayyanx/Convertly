@@ -3,23 +3,29 @@
   "name": "Convertly - Smart Currency Converter",
   "version": "0.0.0",
   "description": "Professional currency converter. Arabic support, Math solver, and Smart UI.",
-  "permissions": ["storage", "clipboardWrite"],
+  "permissions": ["storage", "clipboardWrite", "tabs"],
   "host_permissions": ["https://query1.finance.yahoo.com/*"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "convertly-addon@alrayyan.com",
+      "data_collection_permissions": {}
+    }
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
     }
   },
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  },
-  "background": {
-    "service_worker": "background.js"
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "commands": {
     "_execute_action": {

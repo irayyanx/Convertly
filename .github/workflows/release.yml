@@ -43,39 +43,25 @@ jobs:
           sudo apt-get install -y jq rsync zip imagemagick
 
           mkdir -p dist/chrome dist/firefox
+          
+          # 1. Base files from src/
+          rsync -av ./src/ dist/chrome/
+          rsync -av ./src/ dist/firefox/
 
-          rsync -av \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='dist' \
-            --exclude='manifest.chrome.json' \
-            --exclude='manifest.firefox.json' \
-            ./ dist/chrome/
+          # 2. Browser specific overrides
+          rsync -av ./platforms/chrome/ dist/chrome/
+          rsync -av ./platforms/firefox/ dist/firefox/
 
-          rsync -av \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='dist' \
-            --exclude='manifest.chrome.json' \
-            --exclude='manifest.firefox.json' \
-            ./ dist/firefox/
+          # 3. Inject Version into Manifests
+          jq --arg v "$VERSION" '.version=$v' dist/chrome/manifest.json > dist/chrome/manifest_tmp.json && mv dist/chrome/manifest_tmp.json dist/chrome/manifest.json
+          jq --arg v "$VERSION" '.version=$v' dist/firefox/manifest.json > dist/firefox/manifest_tmp.json && mv dist/firefox/manifest_tmp.json dist/firefox/manifest.json
 
-          jq --arg v "$VERSION" '.version=$v' manifest.chrome.json > dist/chrome/manifest.json
-          jq --arg v "$VERSION" '.version=$v' manifest.firefox.json > dist/firefox/manifest.json
+          # 4. Generate exact icon sizes for Firefox
+          convert ./src/icon.png -resize 16x16 dist/firefox/icon16.png
+          convert ./src/icon.png -resize 48x48 dist/firefox/icon48.png
+          convert ./src/icon.png -resize 128x128 dist/firefox/icon128.png
 
-          # --- Firefox-specific post-processing ---
-          # Generate exact icon sizes for Firefox (ImageMagick is pre-installed on ubuntu-latest)
-          convert icon.png -resize 16x16 dist/firefox/icon16.png
-          convert icon.png -resize 48x48 dist/firefox/icon48.png
-          convert icon.png -resize 128x128 dist/firefox/icon128.png
-
-          # Overwrite default scripts with Firefox-safe (innerHTML-free) versions
-          mv dist/firefox/content-ff.js dist/firefox/content.js
-          mv dist/firefox/popup-ff.js dist/firefox/popup.js
-
-          # --- Chrome cleanup: remove Firefox-only files ---
-          rm -f dist/chrome/content-ff.js dist/chrome/popup-ff.js
-
+          # 5. Zip outputs
           cd dist/chrome
           zip -r "../convertly-chrome-v$VERSION.zip" .
           cd ../firefox

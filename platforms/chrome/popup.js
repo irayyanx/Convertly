@@ -238,18 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (_lastProviderTimestamp) {
         timeString = new Date(_lastProviderTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       }
-      apiStatusText.textContent = '';
-      const lblSpan = document.createElement('span');
-      lblSpan.className = 'api-label';
-      lblSpan.textContent = label;
-      const timeSpan = document.createElement('span');
-      timeSpan.className = 'api-time';
-      timeSpan.dir = 'ltr';
-      timeSpan.style.cssText = 'display:inline-block;unicode-bidi:isolate;margin:0 2px;';
-      timeSpan.textContent = timeString;
-      apiStatusText.appendChild(lblSpan);
-      apiStatusText.appendChild(document.createTextNode(' '));
-      apiStatusText.appendChild(timeSpan);
+      apiStatusText.innerHTML =
+        `<span class="api-label">${label}</span> ` +
+        `<span class="api-time" dir="ltr" style="display:inline-block;unicode-bidi:isolate;margin:0 2px;">${timeString}</span>`;
     }
   }
 
@@ -286,14 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderHistory(arr) {
     const list = document.getElementById('history-list');
     if (!list) return;
-    list.textContent = '';
-    const parseSVG = (svgStr) => new DOMParser().parseFromString(svgStr, 'image/svg+xml').documentElement;
+    list.innerHTML = '';
 
     if (!arr.length) {
-      const msgDiv = document.createElement('div');
-      msgDiv.style.cssText = 'text-align:center; padding:20px; font-size:12px; color:var(--text-muted);';
-      msgDiv.textContent = prefs.lang === 'ar' ? 'لا يوجد سجل حالياً' : 'No history yet';
-      list.appendChild(msgDiv);
+      list.innerHTML = `<div style="text-align:center; padding:20px; font-size:12px; color:var(--text-muted);">${prefs.lang === 'ar' ? 'لا يوجد سجل حالياً' : 'No history yet'}</div>`;
       return;
     }
 
@@ -313,21 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Accordion header
       const header = document.createElement('div');
       header.className = 'history-group-header' + (isCollapsed ? ' collapsed' : '');
-      header.appendChild(parseSVG(icon));
-      header.appendChild(document.createTextNode(' '));
-      const spanLabel = document.createElement('span');
-      spanLabel.textContent = label;
-      header.appendChild(spanLabel);
-      header.appendChild(document.createTextNode(' '));
-      const countSpan = document.createElement('span');
-      countSpan.style.cssText = 'font-size:9px;color:var(--accent);margin:0 4px;';
-      countSpan.textContent = items.length;
-      header.appendChild(countSpan);
-      header.appendChild(document.createTextNode(' '));
-      const chevronSpan = document.createElement('span');
-      chevronSpan.className = 'chevron';
-      chevronSpan.appendChild(parseSVG(chevronSvg));
-      header.appendChild(chevronSpan);
+      header.innerHTML = `${icon} <span>${label}</span> <span style="font-size:9px;color:var(--accent);margin:0 4px;">${items.length}</span> <span class="chevron">${chevronSvg}</span>`;
 
       // Items container — uses display:none for robust collapse
       const container = document.createElement('div');
@@ -353,58 +326,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(item.timestamp);
         const timeStr = d.toLocaleDateString() + ' - ' + d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
-        // --- Build history item via safe DOM APIs ---
-        const mainWrapper = document.createElement('div');
-        mainWrapper.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;';
-
-        const flexDiv = document.createElement('div');
-        flexDiv.style.cssText = 'display:flex;align-items:center;gap:6px;direction:ltr;font-weight:700;font-size:15px;';
-        const spanAmt = document.createElement('span'); spanAmt.textContent = item.amount;
-        const spanFrom = document.createElement('span'); spanFrom.textContent = item.from;
-        const spanArrow = document.createElement('span'); spanArrow.style.cssText = 'color:var(--text-muted);font-size:12px;'; spanArrow.textContent = '→';
-        const spanTo = document.createElement('span'); spanTo.textContent = item.to;
-        flexDiv.append(spanAmt, document.createTextNode(' '), spanFrom, document.createTextNode(' '), spanArrow, document.createTextNode(' '), spanTo);
-
-        const histTime = document.createElement('div'); histTime.className = 'history-time'; histTime.textContent = timeStr;
-        mainWrapper.appendChild(flexDiv);
-        mainWrapper.appendChild(histTime);
-        el.appendChild(mainWrapper);
-
+        let ctxHtml = '';
         if (!isManual) {
           let dt = item.title;
           if (prefs.lang === 'ar') { const tl = dt.toLowerCase(); if (tl.includes('subscrip')||tl.includes('plan')||tl.includes('premium')||tl.includes('upgrade')) dt='اشتراك / خطة'; else if (tl.includes('checkout')||tl.includes('bill')||tl.includes('pay')) dt='صفحة الدفع'; else if (tl.includes('cart')||tl.includes('bag')) dt='سلة التسوق'; }
-
-          const ctxBox = document.createElement('div');
-          ctxBox.style.cssText = 'margin-top:6px;padding:6px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);';
-
-          const titleDiv = document.createElement('div');
-          titleDiv.style.cssText = 'font-size:12px;color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-          titleDiv.title = item.title;
-          titleDiv.textContent = dt + ' ';
-
-          if (item.billingCycle) {
-            const cycleMap = { monthly: prefs.lang==='ar'?'شهرياً':'Monthly', annually: prefs.lang==='ar'?'سنوياً':'Annually', weekly: prefs.lang==='ar'?'أسبوعياً':'Weekly', daily: prefs.lang==='ar'?'يومياً':'Daily' };
-            const badge = document.createElement('span');
-            badge.style.cssText = 'font-size:9px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;margin:0 6px;display:inline-block;vertical-align:middle;font-weight:bold;';
-            badge.textContent = cycleMap[item.billingCycle];
-            titleDiv.appendChild(badge);
-          }
-          ctxBox.appendChild(titleDiv);
-
-          if (item.url) {
-            const lnkWrap = document.createElement('div');
-            lnkWrap.style.cssText = 'font-size:10px;color:var(--accent);margin-top:4px;font-weight:600;';
-            const lnkSpan = document.createElement('span');
-            lnkSpan.className = 'history-link';
-            lnkSpan.dataset.url = item.url;
-            lnkSpan.style.cssText = 'display:inline-flex;align-items:center;gap:4px;';
-            lnkSpan.appendChild(parseSVG(globeIcon));
-            lnkSpan.appendChild(document.createTextNode(' ' + (prefs.lang==='ar'?'فتح الصفحة':'Open page')));
-            lnkWrap.appendChild(lnkSpan);
-            ctxBox.appendChild(lnkWrap);
-          }
-          el.appendChild(ctxBox);
+          let badge = '';
+          if (item.billingCycle) { const c = { monthly: prefs.lang==='ar'?'شهرياً':'Monthly', annually: prefs.lang==='ar'?'سنوياً':'Annually', weekly: prefs.lang==='ar'?'أسبوعياً':'Weekly', daily: prefs.lang==='ar'?'يومياً':'Daily' }; badge = `<span style="font-size:9px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;margin:0 6px;display:inline-block;vertical-align:middle;font-weight:bold;">${c[item.billingCycle]}</span>`; }
+          const lnk = item.url ? `<span class="history-link" data-url="${item.url}" style="display:inline-flex;align-items:center;gap:4px;">${globeIcon} ${prefs.lang==='ar'?'فتح الصفحة':'Open page'}</span>` : '';
+          ctxHtml = `<div style="margin-top:6px;padding:6px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);"><div style="font-size:12px;color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.title}">${dt} ${badge}</div>${lnk?`<div style="font-size:10px;color:var(--accent);margin-top:4px;font-weight:600;">${lnk}</div>`:''}</div>`;
         }
+
+        el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="display:flex;align-items:center;gap:6px;direction:ltr;font-weight:700;font-size:15px;"><span>${item.amount}</span> <span>${item.from}</span> <span style="color:var(--text-muted);font-size:12px;">→</span> <span>${item.to}</span></div><div class="history-time">${timeStr}</div></div>${ctxHtml}`;
 
         el.onclick = () => { selectedFrom = item.from; selectedTo = item.to; amountInput.value = item.amount; updateTriggerUI('from', selectedFrom); updateTriggerUI('to', selectedTo); saveState(); calculate(); switchTab('calc'); };
         container.appendChild(el);
@@ -426,19 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const search = document.getElementById(`${type}-search`);
     if (!trigger || !menu || !list || !search) return;
     function build(filter = '') {
-      list.textContent = '';
+      list.innerHTML = '';
       const f = filter.toLowerCase();
       CURRENCIES.forEach(c => {
         const dn = (prefs.lang === 'ar' && c.nameAr) ? c.nameAr : c.name;
         if (c.code.toLowerCase().includes(f) || dn.toLowerCase().includes(f)) {
           const isCrypto = CRYPTO_CODES.has(c.code);
           const el = document.createElement('div'); el.className = 'option-item';
-          const img = document.createElement('img'); img.src = getFlagUrl(c.code, c.country); img.className = 'option-flag' + (isCrypto ? ' crypto-logo' : '');
-          const infoDiv = document.createElement('div');
-          const codeDiv = document.createElement('div'); codeDiv.style.cssText = 'font-weight:700;font-size:13px'; codeDiv.textContent = c.code;
-          const nameDiv = document.createElement('div'); nameDiv.style.cssText = 'font-size:11px;color:#9ca3af'; nameDiv.textContent = dn;
-          infoDiv.appendChild(codeDiv); infoDiv.appendChild(nameDiv);
-          el.appendChild(img); el.appendChild(document.createTextNode(' ')); el.appendChild(infoDiv);
+          el.innerHTML = `<img src="${getFlagUrl(c.code,c.country)}" class="option-flag${isCrypto ? ' crypto-logo' : ''}"> <div><div style="font-weight:700;font-size:13px">${c.code}</div><div style="font-size:11px;color:#9ca3af">${dn}</div></div>`;
           el.addEventListener('click', (e) => { e.stopPropagation(); updateTriggerUI(type, c.code); menu.classList.remove('active'); cb(c.code); });
           list.appendChild(el);
         }
@@ -465,23 +392,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Multi-Currency Checklist ---
   function populateChecklist() {
     if (!checklistContainer) return;
-    checklistContainer.textContent = '';
+    checklistContainer.innerHTML = '';
     chrome.storage.sync.get(['selectedCurrencies'], (d) => {
       const sel = d.selectedCurrencies || [guessLocalCurrency()];
       CURRENCIES.forEach(c => {
         const dn = (prefs.lang === 'ar' && c.nameAr) ? c.nameAr : c.name;
         const l = document.createElement('label'); l.className = 'check-item';
-        const checkInfo = document.createElement('div'); checkInfo.className = 'check-info';
-        const cImg = document.createElement('img'); cImg.src = getFlagUrl(c.code, c.country);
-        const bCode = document.createElement('b'); bCode.textContent = c.code;
-        const spanDn = document.createElement('span'); spanDn.style.cssText = 'font-size:11px;color:var(--text-muted)'; spanDn.textContent = dn;
-        checkInfo.appendChild(cImg); checkInfo.appendChild(bCode); checkInfo.appendChild(spanDn);
-        const inp = document.createElement('input'); inp.type = 'checkbox'; inp.value = c.code; if (sel.includes(c.code)) inp.checked = true;
-        const customCb = document.createElement('div'); customCb.className = 'custom-checkbox';
-        const cbSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); cbSvg.setAttribute('viewBox', '0 0 24 24');
-        const cbPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline'); cbPoly.setAttribute('points', '20 6 9 17 4 12');
-        cbSvg.appendChild(cbPoly); customCb.appendChild(cbSvg);
-        l.appendChild(checkInfo); l.appendChild(inp); l.appendChild(customCb);
+        l.innerHTML = `<div class="check-info"><img src="${getFlagUrl(c.code,c.country)}"><b>${c.code}</b><span style="font-size:11px;color:var(--text-muted)">${dn}</span></div><input type="checkbox" value="${c.code}" ${sel.includes(c.code)?'checked':''}><div class="custom-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`;
         l.querySelector('input').addEventListener('change', () => {
           const all = Array.from(checklistContainer.querySelectorAll('input:checked')).map(x => x.value);
           if (!all.length) all.push(guessLocalCurrency());
