@@ -57,13 +57,13 @@ jobs:
           jq --arg v "$VERSION" '.version=$v' dist/firefox/manifest.json > dist/firefox/manifest_tmp.json && mv dist/firefox/manifest_tmp.json dist/firefox/manifest.json
 
           # 4. Generate exact icon sizes for Firefox and Chrome
-          magick ./src/icon.png -resize 16x16 dist/firefox/icon16.png
-          magick ./src/icon.png -resize 48x48 dist/firefox/icon48.png
-          magick ./src/icon.png -resize 128x128 dist/firefox/icon128.png
+          convert ./src/icon.png -resize 16x16 dist/firefox/icon16.png
+          convert ./src/icon.png -resize 48x48 dist/firefox/icon48.png
+          convert ./src/icon.png -resize 128x128 dist/firefox/icon128.png
 
-          magick ./src/icon.png -resize 16x16 dist/chrome/icon16.png
-          magick ./src/icon.png -resize 48x48 dist/chrome/icon48.png
-          magick ./src/icon.png -resize 128x128 dist/chrome/icon128.png
+          convert ./src/icon.png -resize 16x16 dist/chrome/icon16.png
+          convert ./src/icon.png -resize 48x48 dist/chrome/icon48.png
+          convert ./src/icon.png -resize 128x128 dist/chrome/icon128.png
 
           rm -f dist/firefox/icon.png
           rm -f dist/chrome/icon.png
