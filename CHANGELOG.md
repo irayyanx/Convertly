@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/irayyanx/Convertly/compare/v2.3.1...v2.3.2) (2026-03-27)
+
+
+### Bug Fixes
+
+* revert to convert command for ImageMagick v6 runner ([fa30827](https://github.com/irayyanx/Convertly/commit/fa30827c91c7a6d36947e81c88fca1977721f7bc))
+
 ## [2.3.1](https://github.com/irayyanx/Convertly/compare/v2.3.0...v2.3.1) (2026-03-27)
 
 
